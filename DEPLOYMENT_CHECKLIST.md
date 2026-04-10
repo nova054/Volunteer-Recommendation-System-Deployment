@@ -41,8 +41,9 @@
 
 ### 4. Configure CORS (5 minutes)
 
-- [ ] Uncomment CORS options in `backend/server.js`
+- [ ] CORS is already configured in `backend/server.js` to support multiple origins
 - [ ] Add `FRONTEND_URL` to Render environment variables (your Vercel URL)
+- [ ] For multiple domains: `FRONTEND_URL=https://app1.vercel.app,https://app2.vercel.app`
 - [ ] Redeploy backend on Render
 
 ### 5. Email Setup (5 minutes)

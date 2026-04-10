@@ -119,20 +119,17 @@ Your project has been configured for separate deployments:
 
 Update backend CORS to only allow your Vercel domain:
 
-1. In `backend/server.js`, uncomment and modify:
-
-   ```javascript
-   const corsOptions = {
-     origin: process.env.FRONTEND_URL || "http://localhost:5173",
-     credentials: true,
-   };
-   app.use(cors(corsOptions));
-   ```
-
+1. CORS is now configured in `backend/server.js` to support multiple origins
 2. In Render Dashboard, add environment variable:
 
    ```
    FRONTEND_URL=https://volunteer-system-frontend.vercel.app
+   ```
+
+   **For multiple domains** (staging, production, etc.):
+
+   ```
+   FRONTEND_URL=https://staging-app.vercel.app,https://production-app.vercel.app
    ```
 
 3. Redeploy backend

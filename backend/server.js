@@ -20,15 +20,27 @@ app.use(express.urlencoded({extended: true}));
 
 // CORS Configuration
 // For development: allow all origins
-// For production (Render): restrict to Vercel frontend domain
-// const corsOptions = {
-//   origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-//   credentials: true,
-// };
-// app.use(cors(corsOptions));
+// For production (Render): restrict to Vercel frontend domain(s)
+// Supports multiple URLs: FRONTEND_URL=https://app1.vercel.app,https://app2.vercel.app
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
 
-// Currently allowing all origins - UPDATE THIS FOR PRODUCTION
-app.use(cors());
+    // Get allowed origins from environment variable (comma-separated)
+    const allowedOrigins = process.env.FRONTEND_URL
+      ? process.env.FRONTEND_URL.split(',').map(url => url.trim())
+      : ['http://localhost:5173', 'http://localhost:5174']; // Default for development
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+};
+app.use(cors(corsOptions));
 
 // Serve static files from the React app (ONLY in local development when frontend exists)
 const distCandidates = [
