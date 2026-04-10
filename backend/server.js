@@ -22,24 +22,48 @@ app.use(express.urlencoded({extended: true}));
 // For development: allow all origins
 // For production (Render): restrict to Vercel frontend domain(s)
 // Supports multiple URLs: FRONTEND_URL=https://app1.vercel.app,https://app2.vercel.app
+// const corsOptions = {
+//   origin: function (origin, callback) {
+//     // Allow requests with no origin (like mobile apps or curl requests)
+//     if (!origin) return callback(null, true);
+
+//     // Get allowed origins from environment variable (comma-separated)
+//     const allowedOrigins = process.env.FRONTEND_URL
+//       ? process.env.FRONTEND_URL.split(',').map(url => url.trim())
+//       : ['http://localhost:5173', 'http://localhost:5174','https://volunteer-recommendation-system-dun.vercel.app']; // Default for development
+
+//     if (allowedOrigins.includes(origin)) {
+//       callback(null, true);
+//     } else {
+//       callback(new Error('Not allowed by CORS'));
+//     }
+//   },
+//   credentials: true,
+// };
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
 
-    // Get allowed origins from environment variable (comma-separated)
     const allowedOrigins = process.env.FRONTEND_URL
       ? process.env.FRONTEND_URL.split(',').map(url => url.trim())
-      : ['http://localhost:5173', 'http://localhost:5174','https://volunteer-recommendation-system-dun.vercel.app/']; // Default for development
+      : [
+          'http://localhost:5173',
+          'http://localhost:5174',
+          'https://volunteer-recommendation-system-dun.vercel.app'  // ← removed trailing slash
+        ];
 
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
+      console.log('CORS blocked origin:', origin); // helpful for debugging
       callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 };
+
 app.use(cors(corsOptions));
 
 // Serve static files from the React app (ONLY in local development when frontend exists)
