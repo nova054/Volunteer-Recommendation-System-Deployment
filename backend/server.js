@@ -30,13 +30,17 @@ app.use(express.urlencoded({extended: true}));
 // Currently allowing all origins - UPDATE THIS FOR PRODUCTION
 app.use(cors());
 
-// Serve static files from the React app (works both before/after monorepo split)
+// Serve static files from the React app (ONLY in local development when frontend exists)
 const distCandidates = [
-  path.join(__dirname, 'frontend/dist'),          
-  path.join(__dirname, '../frontend/dist')         
+  path.join(__dirname, 'frontend/dist'),
+  path.join(__dirname, '../frontend/dist')
 ];
-const distPath = distCandidates.find(p => fs.existsSync(p)) || distCandidates[0];
-app.use(express.static(distPath));
+const distPath = distCandidates.find(p => fs.existsSync(p));
+
+// Only serve static files if frontend dist directory exists (local development)
+if (distPath) {
+  app.use(express.static(distPath));
+}
 
 app.use('/api/auth', authRoutes);
 
@@ -58,12 +62,26 @@ app.use((req, res, next) => {
     !req.path.startsWith('/api') &&
     !req.path.includes('.')
   ) {
+    // In production (Render), redirect to frontend URL or return API-only message
+    if (process.env.NODE_ENV === 'production') {
+      return res.status(200).json({
+        message: 'Volunteer System API',
+        frontend: process.env.FRONTEND_URL || 'https://your-frontend-url.vercel.app',
+        docs: '/api/docs' // Add this if you have API docs
+      });
+    }
+
+    // In development, serve the React app if it exists
     const indexCandidates = [
       path.join(__dirname, 'frontend/dist', 'index.html'),
       path.join(__dirname, '../frontend/dist', 'index.html')
     ];
-    const indexPath = indexCandidates.find(p => fs.existsSync(p)) || indexCandidates[0];
-    res.sendFile(indexPath);
+    const indexPath = indexCandidates.find(p => fs.existsSync(p));
+    if (indexPath) {
+      res.sendFile(indexPath);
+    } else {
+      res.status(404).json({ message: 'Frontend not built. Run npm run build in frontend directory.' });
+    }
   } else {
     next();
   }
