@@ -1,4 +1,8 @@
-const API_BASE_URL = '/api';
+// For production (Vercel deployed frontend):
+// Set VITE_API_URL environment variable to your backend URL (e.g., https://volunteer-backend.onrender.com)
+// For local development: uses '/api' (proxied by Vite to localhost:5000)
+// const API_BASE_URL = '/api'; // Local development
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'; // Production uses env var, fallback to '/api'
 
 class ApiService {
   constructor() {

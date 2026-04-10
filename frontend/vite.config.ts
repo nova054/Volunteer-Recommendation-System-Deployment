@@ -16,4 +16,7 @@ export default defineConfig({
       },
     },
   },
+  // DEPLOYMENT NOTE: When frontend is deployed to Vercel separately,
+  // set VITE_API_URL environment variable in Vercel dashboard
+  // to point to your Render backend URL (e.g., https://volunteer-backend.onrender.com)
 });
