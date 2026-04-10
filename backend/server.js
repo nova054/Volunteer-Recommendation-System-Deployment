@@ -1,5 +1,6 @@
 const express = require('express');
 const dotenv = require('dotenv');
+const mongoose = require('mongoose');
 const connectDB = require('./config/db');
 const authRoutes = require ('./routes/authRoutes');
 const opportunityRoutes = require('./routes/opportunityRoutes');
@@ -12,7 +13,11 @@ const path = require('path');
 const fs = require('fs');
 dotenv.config();
 require('dotenv').config({ path: path.join(__dirname, '.env') });// changed here
-connectDB();
+
+// Connect to database asynchronously (don't block server startup)
+connectDB().catch(err => {
+  console.error('Database connection failed during startup:', err.message);
+});
 
 const app = express();
 app.use(express.json());
@@ -89,6 +94,16 @@ app.use('/api/user', userRoutes);
 app.use('/api/contact', contactRoutes);
 
 app.use('/api/admin', adminRoutes);
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
 
 // DEPLOYMENT NOTE: When deploying separately to Render, static file serving below won't be used
 // Frontend will be served separately from Vercel

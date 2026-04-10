@@ -151,26 +151,38 @@ For nodemailer in production:
 
 ## 🔍 TESTING AFTER DEPLOYMENT
 
-1. **Test Backend API**
+1. **Test Backend Health**
 
    ```
-   curl https://volunteer-backend.onrender.com/api/auth/me
+   curl https://volunteer-recommendation-system.onrender.com/api/health
    ```
 
-   Should return 401 (requires token) or error message
+   Should return JSON with server status and database connection state
 
-2. **Test Frontend**
-   - Visit your Vercel URL
-   - Check browser console for any API errors
-   - Try login/signup flow
+2. **Test API Endpoints**
+
+   ```
+   curl -X POST https://volunteer-recommendation-system.onrender.com/api/auth/login \
+     -H "Content-Type: application/json" \
+     -d '{"email":"test@test.com","password":"test"}'
+   ```
+
+   Should return proper JSON response (even if login fails)
 
 3. **Check Logs**
    - **Render**: Dashboard → Logs
-   - **Vercel**: Dashboard → Deployments → Logs
+   - Look for "MongoDB connected successfully" or connection errors
 
 ---
 
 ## 🐛 COMMON ISSUES & SOLUTIONS
+
+### API returns 404 or HTML instead of JSON
+
+- ✅ Check `/api/health` endpoint first to verify server is running
+- ✅ Check Render logs for database connection errors
+- ✅ Verify `MONGO_URI` is correct in Render environment variables
+- ✅ Server continues running even if DB connection fails (won't crash anymore)
 
 ### Frontend shows "Failed to connect to API"
 
